@@ -1,11 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width = device-width, initial-scale = 1">
-    <title>Pastry Clicker</title>
-</head>
-<body>
-    
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width = device-width, initial-scale = 1">
+        <link rel="stylesheet" type="text/css" href = "styles.css">
+        <title>Pastry Clicker</title>
+    </head>
+    <body>
+       <article>
+           <figcaption> <b>Pastries:</b><b id="totalPastries"></b></figcaption>
+           <figcaption> <b>Pastries per Click (PPC):</b><b id="ppc"></b></figcaption>
+           <figcaption> <b> Pastries per Second (PPS):</b><b id="pps"></b></figcaption>
+            <img id = "pastry" src="images/pastry.png" alt="Pastry">
+       </article>
+       <aside>
+          <table id = "upgrades">
+              <tr>
+                  <th>Building Upgrades</th>
+                  <td class = "upgrade"><img id = "twiceMice" src = "images/upgrades/mouse1.png" alt = "Twice The Mice"></td>
+                  <td class = "upgrade"></td>
+                  <td class = "upgrade"></td>
+                  <td class = "upgrade"></td>
+                  <td class = "upgrade"></td>
+              </tr>
+              <tr>
+                  <th>Cost</th>
+                  <td id = "miceUpgradeCost"></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+              </tr>
+              <tr>
+                  <th>Number of Upgrades</th>
+                  <td id = "miceUpgradesOwned"></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+              </tr>
+          </table>
+           <table id = "buildings">
+               <tr>
+                   <th colspan = "7">Buildings</th>
+               </tr>
+               <tr>
+                   <th>Building</th>
+                   <th>Description</th>
+                   <th>Added PPC</th>
+                   <th>Multiplier</th>
+                   <th>Buildings Bought</th>
+                   <th>Cost</th>
+                   <th>Buy?</th>
+               </tr>
+               <tr>
+                   <td><img src="images/buildings/mouse.png" alt = "Mouse"></td>
+                   <td>Automatic Clicking Mice</td>
+                   <td>1</td>
+                   <td id = "miceMultiplier"></td>
+                   <td id = "mice">0</td>
+                   <td id = "miceCost"></td>
+                   <td class = "buildings" ><img id = "mouse" src="images/checkbox.png" alt = "Buy Mouse"></td>
+               </tr>
+           </table>
+       </aside>
+        
+    </body>
+    <script>
+            //Variables for Statistics
+            var num = 0;
+            var ppc = 1;
+            var pps = 0;
+        
+            //First Building Statistics Statistics
+            var miceBought = 0;
+            var miceCost = 15;
+            var micePPS = .1;
+            var micePPSMultiplier = 1;
+            var miceUpgradePrice = 50;
+            var miceUpgradesOwned = 0;
+        
+            //Variables to display general Statistics
+            var totalPastries = document.getElementById("totalPastries");
+            var pastriesPerClick = document.getElementById("ppc");
+            var pastriesPerSecond = document.getElementById("pps");
+            var miceMultiplier = document.getElementById("miceMultiplier");
+        
+            //Variables to display the first building's statistics
+            var totalMice = document.getElementById("mice");
+            var costOfMice = document.getElementById("miceCost");
+            var miceUpgradeCost = document.getElementById("miceUpgradeCost");
+            var miceUpgradesPurchased = document.getElementById("miceUpgradesOwned");
+            
+            //Variables for Everything Else
+            var upgrades = document.getElementsByClassName("upgrade");
+            var pastry = document.getElementById("pastry");
+            var buildings = document.getElementsByClassName("buildings");
+        
+            //Sets the functions to activate on click
+            pastry.addEventListener("click",count);
+            for(var i = 0; i < buildings.length; i++){
+                buildings[i].addEventListener("click", buildingPurchase);
+            }
+            for(var i = 0; i < upgrades.length; i++){
+                upgrades[i].addEventListener("click", upgradePurchase);
+            }
+            
+            //Updates the text to show the stats every frame
+            setInterval(function(){
+                totalPastries.innerHTML = Math.round(num * 10)/10;
+                pastriesPerClick.innerHTML = ppc;
+                pastriesPerSecond.innerHTML = Math.round(pps*10)/10;
+                
+                //First Building Statistic Displays
+                miceMultiplier.innerHTML = micePPSMultiplier;
+                totalMice.innerHTML = miceBought;
+                costOfMice.innerHTML = miceCost;
+                miceUpgradeCost.innerHTML = miceUpgradePrice;
+                miceUpgradesPurchased.innerHTML = miceUpgradesOwned;
+                
+            }, 1);
+        
+            //Updates the the total pastry count every second
+            setInterval(function(){
+                //Sets the Mice PPS Multiplier depending on how many upgrades it has
+                if(miceUpgradesOwned === 0){
+                    micePPSMultiplier = 1;
+                } else{
+                    micePPSMultiplier = miceUpgradesOwned * 2;
+                }
+                pps = micePPS * miceBought * micePPSMultiplier;
+                num += pps;
+            }, 1000);
+        
+            //Adds a pastry for every time you click the giant pastry
+            function count(){
+                num+=ppc;
+            }
+        
+            //Finds the building that was purchased and decides if the player is able to purchase it.
+            function buildingPurchase(event){
+                var target = event.target;
+                if(target.id == "mouse" && num >= miceCost){ // Checks if the building clicked was the first building
+                    num -= miceCost;
+                    miceBought++;
+                    miceCost = Math.round(15 * Math.pow(1.15, miceBought));                
+                    totalPastries.innerHTML = num;
+                    totalMice.innerHTML = miceBought;
+                }
+            }
+        
+            //Finds the upgrade that was purchased and decides if the player is able to purchase it.
+            function upgradePurchase(event){
+                var target = event.target;
+                if(target.id == "twiceMice" && num >= miceUpgradePrice){
+                        num -= 50;
+                        miceUpgradesOwned++;
+                        miceUpgradePrice = Math.round(50 * Math.pow(1.15, miceUpgradesOwned));
+                        totalPastries.innerHTML=num;
+                        pastriesPerSecond.innerHTML= pps;
+                }
+            }
+            
+        </script>
 </html>
